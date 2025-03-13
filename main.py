@@ -1,5 +1,5 @@
 """
-This code is consistent with the revised verison of the course, which went live 3-11-2025.  With these 2 files 
+This code is consistent with the revised verison of the course, which went live 3-11-2025.  With my 2 files 
 (main.py and cat_trap_algorithms.py), I was able to find success.  With my original 3 files (CatTrap.py, CatGame.py, hexutil.py),
 I was unable to run the game, so I spoke with Eduardo Corpeno via email.  He advised that I may have success running the game
 by using this revised version, which included GitHub Codespaces.  
