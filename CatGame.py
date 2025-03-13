@@ -413,6 +413,26 @@ class CatEvalFn():
         
         # Write your code here
 
+    def score_challenge(self, game, maximizing_player_turn=True):
+    # Assume the grid is size x size and the cat moves are represented by coordinates (game.cat_i, game.cat_j)
+        i, j = game.cat_i, game.cat_j
+
+    # Calculate the "center" of the grid
+        center = game.size // 2
+
+    # Heuristic: Reward the cat for being close to the center of the grid
+        center_distance = abs(i - center) + abs(j - center)
+        score = 100 - center_distance  # Closer to the center is better
+
+    # Optionally, add more logic for edge/corner penalties
+        if i == 0 or i == game.size - 1 or j == 0 or j == game.size - 1:
+        score -= 20  # Penalize for being near the edge
+
+    # More advanced logic can be added here based on your game logic.
+    # Return a positive score for the maximizing player, negative for the minimizing player
+        return score if maximizing_player_turn else -score
+        
+
         return 1 if maximizing_player_turn else -1
 
 
