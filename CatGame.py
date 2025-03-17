@@ -367,24 +367,42 @@ class CatEvalFn():
         return len(cat_moves) if maximizing_player_turn else len(cat_moves)-1
 
     def score_challenge(self, game, maximizing_player_turn=True):
-        
-        # Write your code here
+    """
+    My function evaluates the game state from the cat's perspective.
+    My function returns a score representing the cat's position.
+    """
 
-    def score_challenge(self, game, maximizing_player_turn=True):
-        i, j = game.cat_i, game.cat_j
+        cat_i = game.cat_i
+        cat_j = game.cat_j
+        player_i = game.player_i  # Define player coordinates 
+        player_j = game.player_j
+        grid = game.tiles  
 
-        center = game.size // 2
+    # Reward for being closer to the edge of the Grid (using proximity-based evaluation)
+        edge_score = self.score_proximity(game, maximizing_player_turn)
 
-        center_distance = abs(i - center) + abs(j - center)
-        score = 100 - center_distance  # Closer to the center is better
+    # Penalize for being close to the Player 
+        distance_to_player = max(abs(cat_i - player_i), abs(cat_j - player_j))  
+        player_penalty = max(0, 10 - distance_to_player)
 
-        if i == 0 or i == game.size - 1 or j == 0 or j == game.size - 1:
-        score -= 20  # Penalize for being near the edge
+    # Reward the Cat based on the number of valid moves (using score_moves)
+        moves_score = self.score_moves(game, maximizing_player_turn)
 
+    # Anticipate the Player's next move if it's their turn (Player could block Cat's escape)
+        if not maximizing_player_turn:
+        # Check if the Player's next move will block the Cat's escape or limit options
+            player_threat = sum(1 for n in game.valid_moves() if grid[game.target(cat_i, cat_j, n)[0]][game.target(cat_i, cat_j, n)[1]] != 0)
+            threat_penalty = 5 if player_threat > 0 else 0
+        else:
+            threat_penalty = 0
+
+    # Final score: maximize for escape, moves, and proximity to the edge, minimize for proximity to Player and potential threats
+        score = edge_score + moves_score - player_penalty - threat_penalty
+    # Adjust score based on whose turn it is (maximizing player's turn)
         return score if maximizing_player_turn else -score
-        
-        return 1 if maximizing_player_turn else -1
 
+
+    
     def score_proximity(self, game, maximizing_player_turn=True):
         distances=[100,100]
         cat_moves=game.valid_moves()
