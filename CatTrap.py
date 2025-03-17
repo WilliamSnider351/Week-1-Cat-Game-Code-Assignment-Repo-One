@@ -1,8 +1,6 @@
-
 """
 
 """
-
 
 import sys
 
@@ -22,22 +20,17 @@ import random
 TileRes = 35
 stretch = 2.5 
 
-
 class Level(object):
-    """Represents a level in the game.
-    Currently there is only one.
-    """
 
     def __init__(self, size):
         tiles = {}
         for tile in hexutil.origin.square_grid(size,size):
-            tiles[tile] = '.' # add floor tiles
+            tiles[tile] = '.'
         self.tiles = tiles
         self.seen_tiles = {}
 
     def get_tile(self, hexagon):
         return self.tiles.get(hexagon, '#')
-
 
     def set_tile(self, hexagon):
         return self.tiles.set(hexagon, '~')
@@ -56,9 +49,8 @@ class Level(object):
             self.seen_tiles[hexagon] = self.get_tile(hexagon)
 
 
-
 class GameWidget(QtWidgets.QWidget):
-    """The Qt Widget which shows the game."""
+    
 
     _tile_brushes = {
             '.' : QtGui.QBrush(QtGui.QColor("yellow")),
@@ -71,7 +63,7 @@ class GameWidget(QtWidgets.QWidget):
     def __init__(self, mainWidget, dim, *args, **kws):
         super().__init__(*args, **kws)
 
-        self.setMouseTracking(True) # we want to receive mouseMoveEvents
+        self.setMouseTracking(True) 
 
         self.mainWidget = mainWidget
         self.dim = dim 
@@ -80,7 +72,6 @@ class GameWidget(QtWidgets.QWidget):
         self.hexgrid = hexutil.HexGrid(TileRes)
         self.restart()
 
-        # initialize GUI objects needed for painting
         self.font = QtGui.QFont("Helvetica", 17)
         self.font.setStyleHint(QtGui.QFont.SansSerif)
         self.pen = QtGui.QPen()
@@ -101,7 +92,6 @@ class GameWidget(QtWidgets.QWidget):
         self.backannotate()
         self.repaint()
 
-
     def backannotate(self):
         self.cat = ij_to_hex(self.game.cat_i,self.game.cat_j)
         
@@ -118,7 +108,6 @@ class GameWidget(QtWidgets.QWidget):
         self.level.update_fov(self.fov)
 
     def hexagon_of_pos(self, pos):
-        """Compute the hexagon at the screen position."""
         size = self.size()
 
         dx=TileRes+8
@@ -140,7 +129,7 @@ class GameWidget(QtWidgets.QWidget):
                hex_i<0    or hex_j<0:
                 return
 
-            if self.cat==(-1,-1):                   # where to place the cat
+            if self.cat==(-1,-1):                   
                 if hexagon in self.blocks:          
                     self.blocks.remove(hexagon)
                 self.game.tiles[hex_i][hex_j] = 6  
@@ -148,7 +137,7 @@ class GameWidget(QtWidgets.QWidget):
                 self.game.cat_j = hex_j
                 self.cat = ij_to_hex(hex_i,hex_j)
                 self.mainWidget.editCheckbox.setDisabled(False) 
-            else:                                   # which tile to toggle
+            else:                                   
                 if hexagon == self.cat:
                     self.game.tiles[hex_i][hex_j] = 0  
                     self.game.cat_i = -1
@@ -228,16 +217,13 @@ class GameWidget(QtWidgets.QWidget):
         self.select_hexagon(event.pos())
 
     def select_hexagon(self, pos):
-        """Select hexagon and path to hexagon at position."""
         hexagon = self.hexagon_of_pos(pos)
         
-
-        if hexagon != self.selected_hexagon:
+       if hexagon != self.selected_hexagon:
             self.selected_hexagon = hexagon
             self.repaint()
  
     def paintEvent(self, event):
-        # compute center of window
         dx=TileRes+8
         dy=TileRes*round(math.sqrt(1.0/3.0))-2
 
@@ -245,14 +231,12 @@ class GameWidget(QtWidgets.QWidget):
         xc = size.width()//2
         yc = size.height()//2
 
-        # bounding box when we translate the origin to be at the center
         bbox = hexutil.Rectangle(-xc, -yc, 2*xc, 2*yc)
 
         hexgrid = self.hexgrid
         painter = QtGui.QPainter()
         painter.begin(self)
         try:
-            # paint background black
             painter.save()
             painter.setPen(QtCore.Qt.NoPen)
             painter.setBrush(QtGui.QColor("darkGray"))
@@ -260,13 +244,12 @@ class GameWidget(QtWidgets.QWidget):
             painter.drawRect(xc-self.dim*dx, yc-self.dim*dy, self.dim*dx*2, self.dim*dy*2)
             painter.restore()
 
-            # set up drawing state
             painter.setPen(self.pen)
             painter.setRenderHint(QtGui.QPainter.Antialiasing)
             painter.setRenderHint(QtGui.QPainter.TextAntialiasing)
             painter.setFont(QFont("Courier", 8, QFont.Bold))
             painter.translate(xc, yc)
-            # draw each hexagon which is in the window
+
             for hexagon in hexgrid.hexes_in_rectangle(bbox):
                 polygon = QtGui.QPolygon([QtCore.QPoint(*corner) for corner in hexgrid.corners(hexagon)])
                 hexagon2 = hexagon + self.center
@@ -287,13 +270,9 @@ class GameWidget(QtWidgets.QWidget):
                     painter.setBrush(self.cat_brush)
                     rect = hexgrid.bounding_box(hexagon)
                     painter.drawPolygon(polygon)
-                    rect = QtCore.QRectF(*rect) # convert to Qt RectF
+                    rect = QtCore.QRectF(*rect) 
                     painter.drawText(rect, QtCore.Qt.AlignCenter, "/\\ /\\\n(=`I´=)")
-                    #
-                    #  /\ /\
-                    # (>`ェ´<)  ASCII Art Cat!
-                    # 
-
+                    
         finally:
             painter.end()
 
@@ -305,7 +284,6 @@ class MyTimer(Thread):
         self.start_time = time.time()
         self.deadline = self.start_time + mainWidget.cat_trap.alotted_time
         self.mainWidget=mainWidget
-
 
     def run(self,):
         while not self.stopped.wait(0.01):
@@ -469,7 +447,6 @@ class MyWidget(QWidget):
             self.IDcheckbox.setDisabled(False)
             self.ABcheckbox.setDisabled(False)
 
-
     def updateDLScheckbox(self, state):
         if state == Qt.Checked:
             self.depthText.setDisabled(False)
@@ -487,7 +464,6 @@ class MyWidget(QWidget):
         else:
             self.cat_trap.setEditMode(False)
 
-    @pyqtSlot()
     def on_click(self):
         print('New Game Started')
         print("Hexgrid dimensions:",self.dimText.text(),"x",self.dimText.text())
@@ -511,7 +487,6 @@ class QHLine(QFrame):
 
 def main():
     app = QApplication(sys.argv)
-
     w = MyWidget()
     w.setWindowTitle("Trap the Cat")
     w.resize(TileRes*w.cat_trap.dim*stretch+200,TileRes*w.cat_trap.dim*2)
