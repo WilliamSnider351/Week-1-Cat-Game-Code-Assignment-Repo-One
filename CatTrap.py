@@ -1,5 +1,15 @@
 """
+I have two repositories.  Repo 1 contains 5 files relating to the cat trap game.  Three of them (CatGame.py, CatTrap.py, and hexutil.py)
+are for the original version of the course.  Two of them (main.py and cat_trap_algorithms.py) are for the revised version of the course.
+If you want to run the game, use my Repository 2 files (main.py and cat_trap_algorithms.py).  This code is consistent with the revised 
+version of the course, which went live 3-11-2025.  With my 2 files (main.py and cat_trap_algorithms.py), I was able to find success. 
+With my original 3 files (CatTrap.py, CatGame.py, hexutil.py), I was unable to run the game, so I spoke with Eduardo Corpeno via email.  
+He advised that I may have success running the game by using this revised version, which included GitHub Codespaces.  
 
+He mentioned that users were having trouble installing and setting up the environment, which is why he created the revised version.  
+I ultimately found success getting the game to run by using GitHub Codespaces.  I was able to play the game.  In order to run the game,
+one must run the main.py file and use Control + Shift + P, "Start Cat Trap Game".  You should run main.py from my Repository 2, 
+which is entitled Week 1 Cat Game Code Assignment Repo 2.  Do this in Codespaces at Github.
 """
 
 import sys
