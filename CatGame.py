@@ -17,8 +17,6 @@ class InvalidMove(ValueError):
     pass
 
 class Game(object):
-    """Represents a game state.
-    """
     def __init__(self, size):
         self.cat_i = size//2
         self.cat_j = size//2
@@ -52,34 +50,11 @@ class Game(object):
             if block != [i,j]:
                 self.game.tiles[block[0]][block[1]] = 1
 
-    # Intelligent Agents
-    #
-    # All of these Cats take as inputs: 
-    #                      i) The state of the game, and 
-    #                     ii) The Cat coordinates.
-    #
-    # They return either of the following: 
-    #                      i) The new Cat coordinates, if possible.
-    #                     ii) The same original Cat coordinates, indicating Cat failure. 
-    #                    iii) Player's victory.
-    # 
-    # Usage: The following arguments work as flags to indicate the Cat you'd like to use:
-    #           randcat: Random Cat
-    #                ab: Use Alpha-Beta Pruning
-    #               DLS: Use Depth-Limited Search, with the maximum depth in the max_depth argument
-    #                ID: Use Iterative Deepening, with the allotted time in the alotted_time argument
-    #
-    #        If none of these flags is true, simple minimax is used. 
-
     def CustomCat(self,randcat,ab,DLS,max_depth,ID,alotted_time):
         self.reached_maxdepth = False 
         self.start_time = time.time()
         self.deadline = self.start_time + alotted_time 
-                         #                ^^^^^^^^^^^^ 
-                         # Here's the timeout in seconds for forever-taking Cats.
-                         # This timeout results in a losing cat.
-                         # This value is also used for Iterative Deepening
-                         # as a deadline for the cat to respond.
+                         
         if randcat:
             result = self.RandomCat()    
         elif DLS:
@@ -94,10 +69,6 @@ class Game(object):
         print ("Elapsed time: %.3fms " % elapsed_time)
         return result
 
-
-    # Random Cat
-    # Just a plain old Random Cat
-
     def RandomCat(self):
         moves=self.valid_moves() #["W","E","SE","SW","NE","NW"]
         print(moves)
@@ -110,37 +81,23 @@ class Game(object):
 
         return self.target(self.cat_i,self.cat_j,dir)
 
-
-    # Minimax Cat
-    # This Cat uses the Minimax Algorithm
-
     def MinimaxCat(self):
         move, placeholder = self.minimax()    
         return move 
-
-    # Alpha-Beta Cat
-    # This Cat uses the Alpha-Beta Algorithm
 
     def AlphaBetaCat(self):
         move, placeholder = self.alphabeta()    
         return move 
 
-    # Depth-Limited Cat
-    # This Cat uses the Minimax or Alpha-Beta Algorithm with Limited Depth
-
     def DepthLimitedCat(self,max_depth,ab):
         move, placeholder = self.alphabeta(max_depth=max_depth) if ab else self.minimax(max_depth=max_depth)   
         return move 
-
-    # Iterative-Deepening Cat
-    # This Cat uses the ID Algorithm
 
     def IterativeDeepeningCat(self,ab):
         move, placeholder = self.iterative_deepening(ab)    
         return move 
 
-#====================================================================================================        
-
+       
     def valid_moves(self):
         tiles,cat_i,cat_j=self.tiles,self.cat_i,self.cat_j
         size = self.size
@@ -199,16 +156,12 @@ class Game(object):
 
     def utility(self, moves, maximizing_player=True):
 
-        #terminal cases
         if self.cat_i==0 or self.cat_i==self.size-1 or self.cat_j==0 or self.cat_j==self.size-1:
             return float(100)
 
-        #terminal cases
         if len(moves)==0:
             return float(-100)
 
-        #return self.eval_fn.score_moves(self,maximizing_player)
-        #return self.eval_fn.score_challenge(self,maximizing_player)
         return self.eval_fn.score_proximity(self,maximizing_player)
 
     def apply_move(self,move,maximizing_player):
@@ -263,7 +216,6 @@ class Game(object):
         game.apply_move(move,maximizing_player)
 
         #legal_moves = game.valid_moves()  # cat just moved, so he hasn't lost.
-                  # Besides, legal moves are free tiles for the cat's opponent.
         
         if (depth==maxdepth) or\
            (game.cat_i==0 or game.cat_i==self.size-1 or game.cat_j==0 or game.cat_j==self.size-1):
@@ -273,11 +225,10 @@ class Game(object):
             
         v=float("inf")
         
-        #for s in legal_moves:
-        for i in range(game.size):      # workaround to avoid book-keeping of valid block moves
-            for j in range(game.size):  #
-                if game.tiles[i][j]!=0: #
-                    continue            #
+        for i in range(game.size):      
+            for j in range(game.size): 
+                if game.tiles[i][j]!=0: 
+                    continue            
                 s = [i,j]
 
                 placeholder,temp = self.max_Value(game,s,maximizing_player,depth+1,maxdepth)
@@ -345,9 +296,6 @@ class Game(object):
         maximizing_player=not(maximizing_player)
         game.apply_move(move,maximizing_player)
 
-        #legal_moves = game.valid_moves()  # Cat just moved, so he hasn't lost.
-                  # Besides, legal moves are free tiles for the cat's opponent.
-        
         if (depth==maxdepth) or\
            (game.cat_i==0 or game.cat_i==self.size-1 or game.cat_j==0 or game.cat_j==self.size-1):
             if (depth==maxdepth):
@@ -356,11 +304,10 @@ class Game(object):
 
         v=float("inf")   
              
-        #for s in legal_moves:
-        for i in range(game.size):      # workaround to avoid book-keeping of valid block moves
-            for j in range(game.size):  #
-                if game.tiles[i][j]!=0: #
-                    continue            #
+        for i in range(game.size):      
+            for j in range(game.size):  
+                if game.tiles[i][j]!=0: 
+                    continue            
                 s = [i,j]
                 
                 placeholder,temp=self.ab_max_Value(game,s,alpha,beta,maximizing_player,depth+1,maxdepth)
@@ -400,49 +347,33 @@ class Game(object):
         return output_move,utility
 
 
-
 class CatEvalFn():
-    """Evaluation function that outputs a score equal to 
-    the number of valid moves for the cat."""
     def score_moves(self, game, maximizing_player_turn=True):
         cat_moves=game.valid_moves()
         return len(cat_moves) if maximizing_player_turn else len(cat_moves)-1
 
-    """Your own Evaluation function."""
     def score_challenge(self, game, maximizing_player_turn=True):
         
         # Write your code here
 
     def score_challenge(self, game, maximizing_player_turn=True):
-    # Assume the grid is size x size and the cat moves are represented by coordinates (game.cat_i, game.cat_j)
         i, j = game.cat_i, game.cat_j
 
-    # Calculate the "center" of the grid
         center = game.size // 2
 
-    # Heuristic: Reward the cat for being close to the center of the grid
         center_distance = abs(i - center) + abs(j - center)
         score = 100 - center_distance  # Closer to the center is better
 
-    # Optionally, add more logic for edge/corner penalties
         if i == 0 or i == game.size - 1 or j == 0 or j == game.size - 1:
         score -= 20  # Penalize for being near the edge
 
-    # More advanced logic can be added here based on your game logic.
-    # Return a positive score for the maximizing player, negative for the minimizing player
         return score if maximizing_player_turn else -score
         
-
         return 1 if maximizing_player_turn else -1
 
-
-    """Evaluation function that outputs a
-    score sensitive to how close the cat is to a border."""
     def score_proximity(self, game, maximizing_player_turn=True):
-       
         distances=[100,100]
         cat_moves=game.valid_moves()
-        #cat_moves=["W","E","SE","SW","NE","NW"]
         for move in cat_moves:
             dist = 0
             i,j = game.cat_i,game.cat_j
